@@ -38,7 +38,7 @@ package body Shared_Data is
 
       procedure Set_Target_Speed(Value : Float) is
       begin
-         if Value >= 0.0  and Value <= 120 then
+         if Value >= 0.0  and Value <= 120.0 then
             Target_Speed := Value;
          end if;
       end;
