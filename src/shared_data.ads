@@ -5,13 +5,17 @@ package Shared_Data is
    type Sensor_Health is (Healthy, Timeout, Invalid_Data);
 
    protected type Shared is
-      procedure Set_Speed(Value : Float);
+      procedure Set_Speed(Value : Float)
+         with Pre => Value >= 0.0;
       function Get_Speed return Float;
+
       procedure Set_Speed_Health(Health : Sensor_Health);
       function Get_Speed_Health return Sensor_Health;
 
-      procedure Set_Distance(Value : Float);
+      procedure Set_Distance(Value : Float)
+         with Pre => Value >= 0.0;
       function Get_Distance return Float;
+
       procedure Set_Distance_Health(Health : Sensor_Health);
       function Get_Distance_Health return Sensor_Health;
 
@@ -20,20 +24,27 @@ package Shared_Data is
       procedure Set_Lane_Health(Health : Sensor_Health);
       function Get_Lane_Health return Sensor_Health;
 
-      procedure Set_Target_Speed(Value : Float);
+      procedure Set_Target_Speed(Value : Float)
+         with Pre => Value >= 0.0 and Value <= 120.0;
       function Get_Target_Speed return Float;
 
-      procedure Set_Throttle(Value : Float);
+      procedure Set_Throttle(Value : Float)
+         with Pre => Value in -1.0 .. 1.0;
       function Get_Throttle return Float;
-      procedure Set_Steering(Value : Float);
+
+      procedure Set_Steering(Value : Float)
+         with Pre => Value in -1.0 .. 1.0;
       function Get_Steering return Float;
 
       procedure Set_Autopilot_Enabled(Enabled : Boolean);
       function Is_Autopilot_Enabled return Boolean;
 
-      procedure Set_Driver_Brake(Value : Float);
+      procedure Set_Driver_Brake(Value : Float)
+         with Pre => Value in 0.0 .. 1.0;
       function Get_Driver_Brake return Float;
-      procedure Set_Driver_Steering(Value : Float);
+
+      procedure Set_Driver_Steering(Value : Float)
+         with Pre => Value in -45.0 .. 45.0;
       function Get_Driver_Steering return Float;
 
       procedure Set_System_State(State : System_State);

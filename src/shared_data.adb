@@ -155,7 +155,7 @@ package body Shared_Data is
       begin
          Fault_Active := True;
          Fault_Level := Severity;
-         -- 复制消息（最多80字符）
+
          for I in Message'Range loop
             if I - Message'First + 1 <= 80 then
                Fault_Message(I - Message'First + 1) := Message(I);
