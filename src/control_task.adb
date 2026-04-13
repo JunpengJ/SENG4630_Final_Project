@@ -3,14 +3,48 @@ with Shared_Data; use Shared_Data;
 
 package body Control_Task is
    task body Control is
+      function Compute_Throttle(Speed, Target, Distance: Float) return Float
+         with Pre  => Speed >= 0.0 and Distance >= 0.0,
+              Post => Compute_Throttle'Result in -1.0 .. 1.0
+      is 
+         Safe_Distance : constant Float := 10.0;
+         Kp_Speed      : constant Float := 0.5;
+         Kp_Dist       : constant Float := 0.2;
+         Error_Speed   : constant Float := Target - Speed;
+         Error_Dist    : constant Float := Distance - Safe_Distance;
+         Raw           : Float := Kp_Speed * Error_Speed + Kp_Dist * Error_Dist;
+
+      begin
+         if Raw > 1.0 then 
+            return 1.0;
+         elsif Raw < -1.0 then
+            return -1.0;
+         else 
+            return Raw;
+         end if;
+      end Compute_Throttle;
+
+      function Compute_Steering(Lane_Offset: FLoat) return Float
+         with Pre  => True,
+              Post => Compute_Steering'Result in -1.0 .. 1.0
+      is 
+         Kp_Lane : constant Float := 0.8;
+         Raw     : Float := -Kp_Lane * Lane_Offset;
+      begin
+         if Raw > 1.0 then 
+            return 1.0;
+         elsif Raw < -1.0 then 
+            return -1.0;
+         else
+            return Raw;
+         end if;
+      end Compute_Steering;
+
       Speed, Distance, Lane : Float;
       Target_Speed : Float;
       Speed_Health, Dist_Health, Lane_Health : Sensor_Health;
       Throttle, Steering : Float;
       Safe_Distance  : constant Float := 10.0;
-      Kp_Speed       : constant Float := 0.5;
-      Kp_Dist        : constant Float := 0.2;  
-      Kp_Lane        : constant Float := 0.8;
 
       package Float_IO is new Ada.Text_IO.Float_IO(Float);
       use Float_IO;
@@ -51,19 +85,8 @@ package body Control_Task is
                      Throttle := -1.0;
                      Steering := 0.0;
                   else
-                     declare
-                        Error_Speed : Float := Target_Speed - Speed;
-                        Error_Dist  : Float := Distance - Safe_Distance;
-                     begin
-                        Throttle := Kp_Speed * Error_Speed + Kp_Dist * Error_Dist;
-                        if Throttle > 1.0 then Throttle := 1.0;
-                        elsif Throttle < -1.0 then Throttle := -1.0;
-                        end if;
-                     end;
-                     Steering := -Kp_Lane * Lane;
-                     if Steering > 1.0 then Steering := 1.0;
-                     elsif Steering < -1.0 then Steering := -1.0;
-                     end if;
+                     Throttle := Compute_Throttle(Speed, Target_Speed, Distance);
+                     Steering := Compute_Steering(Lane);
                   end if;
                when Emergency_Braking =>
                   Throttle := -1.0;
